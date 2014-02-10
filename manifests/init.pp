@@ -62,31 +62,34 @@ class windows_python(
   $pip_source         = undef,
   $pip_remote         = $::windows_python::params::pip_remote,
 ) inherits windows_python::params {
-   if $python_chocolatey {
+
+  if $python_chocolatey {
     $python_chocolatey_package = 'python.x86'
     $python_package_name  = $python_chocolatey_package
     package { $python_package_name:
        ensure     => installed,
        provider   => 'chocolatey',
     }
-  } else {
-  if $python_source == undef {
-    $python_source_real = $::windows_python::params::python_source
-    windows_common::remote_file{'python.msi':
-      source      => $python_remote,
-      destination => $python_source_real,
-      before      => Package[$python_package_name],
+  } else {    
+    if $python_source == undef {
+      $python_source_real = $::windows_python::params::python_source
+      windows_common::remote_file{'python.msi':
+        source      => $python_remote,
+        destination => $python_source_real,
+        before      => Package[$python_package_name],
+      }
+    } else {
+      $python_source_real = $python_source
     }
-  } else {
-    $python_source_real = $python_source
+
+    $python_package_name = $python_package
+    package { $python_package_name:
+      ensure          => installed,
+      source          => $python_source_real,
+      install_options => ['/PASSIVE', {'ALLUSERS'  => '1'}, {'TARGETDIR' => $python_installdir},],
+    }
   }
-  $python_package_name = $python_package
-  package { $python_package_name:
-    ensure          => installed,
-    source          => $python_source_real,
-    install_options => ['/PASSIVE', {'ALLUSERS'  => '1'}, {'TARGETDIR' => $python_installdir},],
-  }
- }
+
   if $pip_source == undef {
     $pip_source_real = $::windows_python::params::pip_source
     windows_common::remote_file{'get-pip.py':
@@ -108,7 +111,6 @@ class windows_python(
     require => Package[$python_package_name],
   }
 
-  
   exec { 'install-pip':
     command  => "& easy_install.exe pip==1.4.1",
     creates  => "${python_installdir}\\Scripts\\pip.exe",
@@ -142,23 +144,24 @@ class windows_python(
        provider   => 'chocolatey',
     }
   } else {
-  if $easyinstall_source == undef {
-    $easyinstall_source_real = $::windows_python::params::easyinstall_source
+    if $easyinstall_source == undef {
+      $easyinstall_source_real = $::windows_python::params::easyinstall_source
 
-    windows_common::remote_file{'ez_setup.py':
-      source      => $easyinstall_remote,
-      destination => $easyinstall_source_real,
-      before      => Exec['install-ez'],
+      windows_common::remote_file{'ez_setup.py':
+        source      => $easyinstall_remote,
+        destination => $easyinstall_source_real,
+        before      => Exec['install-ez'],
+      }
+    } else {
+      $easyinstall_source_real = $easyinstall_source
     }
-  } else {
-    $easyinstall_source_real = $easyinstall_source
+
+    exec { 'install-ez':
+      command  => "& python.exe ${easyinstall_source_real}",
+      creates  => "${python_installdir}\\Scripts\\easy_install.exe",
+      unless   => "exit !(Test-Path -Path '${python_installdir}\\Scripts\\easy_install.exe')",
+      provider => powershell,
+      require  => Windows_path[$python_installdir],
+    }
   }
-  exec { 'install-ez':
-    command  => "& python.exe ${easyinstall_source_real}",
-    creates  => "${python_installdir}\\Scripts\\easy_install.exe",
-    unless   => "exit !(Test-Path -Path '${python_installdir}\\Scripts\\easy_install.exe')",
-    provider => powershell,
-    require  => Windows_path[$python_installdir],
-  }
- }
 }
