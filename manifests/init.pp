@@ -69,9 +69,6 @@ class windows_python(
        ensure     => installed,
        provider   => 'chocolatey',
     }
-    notify {"Chocolatey is installing $python_package_name":
-      require     =>  Package[$python_package_name],
-    }
   } else {
   if $python_source == undef {
     $python_source_real = $::windows_python::params::python_source
@@ -88,9 +85,6 @@ class windows_python(
     ensure          => installed,
     source          => $python_source_real,
     install_options => ['/PASSIVE', {'ALLUSERS'  => '1'}, {'TARGETDIR' => $python_installdir},],
-  }
-  notify {"MSI is installing $python_package_name":
-    require         => Package[$python_package_name],
   }
  }
   if $pip_source == undef {
@@ -147,9 +141,6 @@ class windows_python(
        ensure     => installed,
        provider   => 'chocolatey',
     }
-    notify {"Chocolatey is installing $easyinstall_package":
-      require     =>  Package[$easyinstall_package],
-    }
   } else {
   if $easyinstall_source == undef {
     $easyinstall_source_real = $::windows_python::params::easyinstall_source
@@ -168,9 +159,6 @@ class windows_python(
     unless   => "exit !(Test-Path -Path '${python_installdir}\\Scripts\\easy_install.exe')",
     provider => powershell,
     require  => Windows_path[$python_installdir],
-  }
-  notify { " Python exe is installing easy install":
-    require       => Exec['install-ez'],
   }
  }
 }
