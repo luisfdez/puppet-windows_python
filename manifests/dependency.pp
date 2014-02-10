@@ -81,7 +81,7 @@ define windows_python::dependency (
 
       exec { "trigger-python-dependency-${name}":
         command  => "Write-Output \"Installing python dependency: ${name}",
-        unless   => "\$output = pip freeze; exit !(\$output.Contains('${name}==${version}'))",
+        unless   => "\$output = pip freeze; exit !(\$output.ToLower().Contains(\"${name}==${version}\".ToLower()))",
         provider => powershell,
         notify   => Windows_7zip::Extract_file["exe-installer-extract-${name}"],
       }
