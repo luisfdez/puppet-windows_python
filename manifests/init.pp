@@ -70,7 +70,9 @@ class windows_python(
        ensure     => installed,
        provider   => 'chocolatey',
     }
-  } else {    
+  } else {
+    $python_package_name = $python_package
+ 
     if $python_source == undef {
       $python_source_real = $::windows_python::params::python_source
       windows_common::remote_file{'python.msi':
@@ -82,7 +84,6 @@ class windows_python(
       $python_source_real = $python_source
     }
 
-    $python_package_name = $python_package
     package { $python_package_name:
       ensure          => installed,
       source          => $python_source_real,
