@@ -123,9 +123,9 @@ class windows_python(
     require  => [Windows_path[$python_installdir],Exec['install-ez']],
   }
   
-  $pip_conf_file =  "C:\\Users\\Administrator\pip\\pip.ini"
+  $pip_conf_file =  'C:/Users/Administrator/pip/pip.ini'
 
-  file { 'C:\\Users\\Administrator\\pip':
+  file { 'C:/Users/Administrator/pip':
     ensure     => directory,
     require    => Exec['install-pip'],
   }
@@ -133,10 +133,10 @@ class windows_python(
   file { $pip_conf_file :
     ensure     => file,
     source     => "puppet:///modules/windows_python/pip.ini",
-    require    => [File['C:\\Users\\Administrator\\pip'],Exec['install-pip']],
+    require    => [File['C:/Users/Administrator/pip'],Exec['install-pip']],
   }
 
-  file { 'C:\\Users\\Administrator\\AppData\\Local\Temp\\pip':
+  file { 'C:/Users/Administrator/AppData/Local/Temp/pip':
     ensure     => directory,
     require    => Exec['install-pip'],
   }
