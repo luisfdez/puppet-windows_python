@@ -1,4 +1,5 @@
 define windows_python::package::pip (
+  $proxy      = undef,
   $source     = undef,
   $version    = latest,
 ){
