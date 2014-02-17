@@ -35,7 +35,7 @@ define windows_python::windows_service (
 ){
   $full_command = "C:\\Python27\\lib\\site-packages\\win32\\PythonService.exe ${arguments}"
 
-  windows_common::configuration::service { ${name}:
+  windows_common::configuration::service { $name:
     display     => $display_name,
     description => $description,
     binpath     => $full_command, 
@@ -43,7 +43,7 @@ define windows_python::windows_service (
 
   registry_key { "HKLM\\System\\CurrentControlSet\\Services\\${name}\\PythonClass":
     ensure  => $ensure,
-    require => Windows_common::Configuration::Service[${name}],
+    require => Windows_common::Configuration::Service[$name],
   }
 
   registry_value { "HKLM\\System\\CurrentControlSet\\Services\\${name}\\PythonClass\\":
